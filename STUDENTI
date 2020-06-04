@@ -1,0 +1,200 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Data.OleDb;
+
+namespace WindowsFormsApp1
+{
+    public partial class Studenti : Form
+    {
+        public Studenti()
+        {
+            InitializeComponent();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            OleDbConnection con = new OleDbConnection();
+            con.ConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0; Data Source=B25B26.accdb";
+            OleDbCommand cmd = new OleDbCommand();
+            cmd.Connection = con;
+            cmd.CommandText = "SELECT COUNT(StudentID) AS Izbroj FROM Student";
+            try
+            {
+                con.Open();
+                OleDbDataReader reader = cmd.ExecuteReader();
+                reader.Read();
+                int broj = Convert.ToInt32(reader["Izbroj"]) + 1;
+                textBox1.Text = broj.ToString();
+                textBox1.Enabled = false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                cmd.Dispose();
+                con.Close();
+            }
+            textBox2.Clear();
+            textBox3.Clear();
+            textBox4.Clear();
+            textBox5.Clear();
+            textBox6.Clear();
+            textBox7.Clear();
+            textBox8.Clear();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            OleDbConnection con = new OleDbConnection();
+            con.ConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0; Data Source=B25B26.accdb";
+            OleDbCommand cmd = new OleDbCommand();
+            cmd.Connection = con;
+            cmd.CommandText = string.Format("INSERT INTO Student VALUES({0},'{1}','{2}','{3}',#{4}#,'{5}','{6}','{7}')", Convert.ToInt32(textBox1.Text), textBox2.Text, textBox3.Text, textBox4.Text, textBox5.Text, textBox6.Text,textBox7.Text,textBox8.Text);
+            try
+            {
+                con.Open();
+                cmd.ExecuteNonQuery();
+                MessageBox.Show("Uspesno ste dodali studenta u bazu");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                con.Close();
+            }
+           Studenti f = new Studenti();
+            f.Show();
+            this.Close();
+
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            OleDbConnection con = new OleDbConnection();
+            con.ConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0; Data Source=B25B26.accdb";
+            OleDbCommand cmd = new OleDbCommand();
+            cmd.Connection = con;
+            if (textBox5.Text == "")
+            {
+            cmd.CommandText = string.Format("UPDATE Student SET Ime='{0}',Prezime='{1}',BrojIndeksa='{2}',Adresa='{3}',Email='{4}',Telefon='{5}' WHERE StudentID={6}", textBox2.Text, textBox3.Text, textBox4.Text,textBox6.Text, textBox7.Text, textBox8.Text, Convert.ToInt32(textBox1.Text));
+            }
+            else
+            cmd.CommandText=string.Format("UPDATE Student SET Ime='{0}',Prezime='{1}',BrojIndeksa='{2}',DatumRodjenja=#{3}#,Adresa='{4}',Email='{5}',Telefon='{6}' WHERE StudentID={7}",textBox2.Text,textBox3.Text,textBox4.Text,Convert.ToDateTime(textBox5.Text).ToShortDateString(),textBox6.Text,textBox7.Text,textBox8.Text,Convert.ToInt32(textBox1.Text));
+            try
+            {
+                con.Open();
+                cmd.ExecuteNonQuery();
+                MessageBox.Show("Uspesno ste izmenili studenta u bazi");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                con.Close();
+            }
+            Studenti f = new Studenti();
+            f.Show();
+            this.Close();
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void Studenti_Load(object sender, EventArgs e)
+        {
+            //id novog
+            OleDbConnection con = new OleDbConnection();
+            con.ConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0; Data Source=B25B26.accdb";
+            OleDbCommand cmd = new OleDbCommand();
+            cmd.Connection = con;
+            cmd.CommandText = "SELECT COUNT(StudentID) AS Izbroj FROM Student";
+            try
+            {
+                con.Open();
+                OleDbDataReader reader = cmd.ExecuteReader();
+                reader.Read();
+                int broj = Convert.ToInt32(reader["Izbroj"]) + 1;
+                textBox1.Text = broj.ToString();
+                textBox1.Enabled = false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                cmd.Dispose();
+                con.Close();
+            }
+            //listbox
+            cmd.Connection = con;
+            cmd.CommandText = "SELECT * FROM Student";
+            try
+            {
+                con.Open();
+                OleDbDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    listBox1.Items.Add(reader["StudentID"].ToString() + " - " + reader["Ime"].ToString() + " " + reader["Prezime"].ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                cmd.Dispose();
+                con.Close();
+            }
+        }
+
+        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            OleDbConnection con = new OleDbConnection();
+            con.ConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0; Data Source=B25B26.accdb";
+            OleDbCommand cmd = new OleDbCommand();
+            cmd.Connection = con;
+            string a = listBox1.SelectedItem.ToString();
+            a = a.Substring(0, a.IndexOf(' '));
+            cmd.CommandText = string.Format("SELECT * FROM Student WHERE StudentID={0}", Convert.ToInt32(a));
+            try
+            {
+                con.Open();
+                OleDbDataReader reader = cmd.ExecuteReader();
+                reader.Read();
+                textBox1.Text = reader["StudentID"].ToString();
+                textBox2.Text = reader["Ime"].ToString();
+                textBox3.Text = reader["Prezime"].ToString();
+                textBox4.Text = reader["BrojIndeksa"].ToString();
+                textBox5.Text = reader["DatumRodjenja"].ToString();
+                textBox6.Text = reader["Adresa"].ToString();
+                textBox7.Text = reader["Email"].ToString();
+                textBox8.Text = reader["Telefon"].ToString();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                con.Close();
+            }
+        }
+    }
+}
