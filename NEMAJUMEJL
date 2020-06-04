@@ -1,0 +1,60 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Data.OleDb;
+using System.Windows.Forms.DataVisualization.Charting;
+
+namespace WindowsFormsApp1
+{
+    public partial class BezMejla : Form
+    {
+        public BezMejla()
+        {
+            InitializeComponent();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            OleDbConnection con = new OleDbConnection();
+            con.ConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0; Data Source=B25B26.accdb";
+            OleDbCommand cmd = new OleDbCommand();
+            cmd.Connection = con; string stringic = "";
+            cmd.CommandText = "Select Profesor.Ime, Profesor.Prezime, Count(Kontakt_Informacije.ProfesorID) AS[Broj kontakata] From Profesor, Kontakt_Informacije Where Kontakt_Informacije.ProfesorID = Profesor.ProfesorID And DatumKontakta LIKE '" + numericUpDown1.Value.ToString() + "%" + numericUpDown2.Value.ToString() + "' And Profesor.Email='" + stringic + "' Group By Profesor.Ime, Profesor.Prezime";
+            OleDbDataAdapter da = new OleDbDataAdapter(cmd);
+            DataSet ds = new DataSet();
+            da.Fill(ds);
+            dataGridView1.DataSource = ds.Tables[0];
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            chart1.Visible = true;
+            OleDbConnection con = new OleDbConnection();
+            con.ConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0; Data Source=B25B26.accdb";
+            OleDbCommand cmd = new OleDbCommand();
+            cmd.Connection = con; string stringic = "";
+            cmd.CommandText = "Select Profesor.Ime, Profesor.Prezime, Count(Kontakt_Informacije.ProfesorID) AS[Broj kontakata] From Profesor, Kontakt_Informacije Where Kontakt_Informacije.ProfesorID = Profesor.ProfesorID And DatumKontakta LIKE '" + numericUpDown1.Value.ToString() + "%" + numericUpDown2.Value.ToString() + "' And Profesor.Email='" + stringic + "' Group By Profesor.Ime, Profesor.Prezime";
+            OleDbDataAdapter da = new OleDbDataAdapter(cmd);
+            DataSet ds = new DataSet();
+            da.Fill(ds);
+            dataGridView1.DataSource = ds.Tables[0];
+            chart1.DataSource = ds.Tables[0];
+            chart1.Series["Series1"].XValueMember = "Prezime";
+            chart1.Series["Series1"].YValueMembers = "Broj kontakata";
+            chart1.Series["Series1"].ChartType = SeriesChartType.Pie;
+            chart1.Series["Series1"].IsValueShownAsLabel = true;
+            chart1.DataBind();
+        }
+
+        private void BezMejla_Load(object sender, EventArgs e)
+        {
+
+        }
+    }
+}
