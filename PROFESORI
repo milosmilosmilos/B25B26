@@ -1,0 +1,204 @@
+using System;
+using System.Collections.Generic;
+using System.ComponentModel;
+using System.Data;
+using System.Drawing;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using System.Data.OleDb;
+
+namespace WindowsFormsApp1
+{
+    public partial class Profesori : Form
+    {
+        public Profesori()
+        {
+            InitializeComponent();
+        }
+
+        private void button1_Click(object sender, EventArgs e)
+        {
+            OleDbConnection con = new OleDbConnection();
+            con.ConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0; Data Source=B25B26.accdb";
+            OleDbCommand cmd = new OleDbCommand();
+            cmd.Connection = con;
+            cmd.CommandText = "SELECT COUNT(ProfesorID) AS Izbroj FROM Profesor";
+            try
+            {
+                con.Open();
+                OleDbDataReader reader = cmd.ExecuteReader();
+                reader.Read();
+                int broj = Convert.ToInt32(reader["Izbroj"]) + 1;
+                textBox1.Text = broj.ToString();
+                textBox1.Enabled = false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                cmd.Dispose();
+                con.Close();
+            }
+            textBox2.Clear();
+            textBox3.Clear();
+            textBox4.Clear();
+            textBox5.Clear();
+            textBox6.Clear();
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            OleDbConnection con = new OleDbConnection();
+            con.ConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0; Data Source=B25B26.accdb";
+            OleDbCommand cmd = new OleDbCommand();
+            cmd.Connection = con;
+            cmd.CommandText = string.Format("INSERT INTO Profesor VALUES({0},'{1}','{2}',#{3}#,'{4}','{5}')", Convert.ToInt32(textBox1.Text), textBox2.Text, textBox3.Text, textBox4.Text, textBox5.Text, textBox6.Text);
+            try
+            {
+                con.Open();
+                cmd.ExecuteNonQuery();
+                MessageBox.Show("Uspesno ste dodali profesora u bazu");
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                con.Close();
+            }
+            Profesori f = new Profesori();
+            f.Show();
+            this.Close();
+
+        }
+
+        private void button3_Click(object sender, EventArgs e)
+        {
+            OleDbConnection con = new OleDbConnection();
+            con.ConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0; Data Source=B25B26.accdb";
+            OleDbCommand cmd = new OleDbCommand();
+            cmd.Connection = con;
+            DateTime datum = Convert.ToDateTime(textBox4.Text);
+            cmd.CommandText = string.Format("Update Profesor Set Ime='{0}', Prezime='{1}', DatumRodjenja=#{2}#, Telefon='{3}', Email='{4}' Where ProfesorID={5}",textBox2.Text,textBox3.Text,datum.ToShortDateString(),textBox5.Text,textBox6.Text,Convert.ToInt32(textBox1.Text));
+                /*cmd.Parameters.AddWithValue("Ime", textBox2.Text);
+                cmd.Parameters.AddWithValue("Prezime", textBox3.Text);
+                DateTime datum = Convert.ToDateTime(textBox4.Text);
+                cmd.Parameters.AddWithValue("DatumRodjenja", datum.ToShortDateString());
+                cmd.Parameters.AddWithValue("Telefon", textBox5.Text);
+                cmd.Parameters.AddWithValue("Email", textBox6.Text);
+                cmd.Parameters.AddWithValue("ProfesorID", Convert.ToInt32(textBox1.Text));*/
+                try
+                {
+                    con.Open();
+                    cmd.ExecuteNonQuery();
+                    MessageBox.Show("Uspesno ste azurirali profesora");
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(ex.Message);
+                }
+                finally
+                {
+                    con.Close();
+                }
+                
+                Profesori f = new Profesori();
+                f.Show();
+                this.Close();
+            
+        }
+
+        private void button4_Click(object sender, EventArgs e)
+        {
+            this.Close();
+        }
+
+        private void Form2_Load(object sender, EventArgs e)
+        {
+            //id novog
+            OleDbConnection con = new OleDbConnection();
+            con.ConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0; Data Source=B25B26.accdb";
+            OleDbCommand cmd = new OleDbCommand();
+            cmd.Connection = con;
+            cmd.CommandText = "SELECT COUNT(ProfesorID) AS Izbroj FROM Profesor";
+            try
+            {
+                con.Open();
+                OleDbDataReader reader = cmd.ExecuteReader();
+                reader.Read();
+                int broj = Convert.ToInt32(reader["Izbroj"]) + 1;
+                textBox1.Text = broj.ToString();
+                textBox1.Enabled = false;
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                cmd.Dispose();
+                con.Close();
+            }
+            //listbox
+            cmd.Connection = con;
+            cmd.CommandText = "SELECT * FROM Profesor";
+            try
+            {
+                con.Open();
+                OleDbDataReader reader = cmd.ExecuteReader();
+                while (reader.Read())
+                {
+                    listBox1.Items.Add(reader["ProfesorID"].ToString() + " - " + reader["Ime"].ToString() + " " + reader["Prezime"].ToString());
+                }
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                cmd.Dispose();
+                con.Close();
+            }
+        }
+
+        private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            OleDbConnection con = new OleDbConnection();
+            con.ConnectionString = @"Provider=Microsoft.ACE.OLEDB.12.0; Data Source=B25B26.accdb";
+            OleDbCommand cmd = new OleDbCommand();
+            cmd.Connection = con;
+            string a = listBox1.SelectedItem.ToString();
+            a = a.Substring(0, a.IndexOf(' '));
+            cmd.CommandText = string.Format("SELECT * FROM Profesor WHERE ProfesorID={0}", Convert.ToInt32(a));
+            try
+            {
+                con.Open();
+                OleDbDataReader reader = cmd.ExecuteReader();
+                reader.Read();
+                textBox1.Text = reader["ProfesorID"].ToString();
+                textBox2.Text = reader["Ime"].ToString();
+                textBox3.Text = reader["Prezime"].ToString();
+                textBox4.Text = reader["DatumRodjenja"].ToString();
+                textBox5.Text = reader["Telefon"].ToString();
+                textBox6.Text = reader["Email"].ToString();
+
+
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                con.Close();
+            }
+
+        }
+    }
+}
